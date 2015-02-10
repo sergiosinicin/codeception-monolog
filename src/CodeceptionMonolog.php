@@ -91,7 +91,7 @@ class CodeceptionMonolog extends PlatformExtension
      */
     protected function getFailMessage(FailEvent $failEvent)
     {
-        $testName = $failEvent->getTest()->getTestFullName($failEvent->getTest());
+        $testName = $failEvent->getTest()->getTestSignature($failEvent->getTest());
 
         return sprintf(
             $this->message, $testName,
