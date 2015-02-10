@@ -1,7 +1,6 @@
 <?php
 namespace Codeception\Extension;
 
-use Carbon\Carbon;
 use Codeception\Event\FailEvent;
 use Codeception\Event\TestEvent;
 use Codeception\Platform\Extension as PlatformExtension;
@@ -29,6 +28,12 @@ class CodeceptionMonolog extends PlatformExtension
         'test.incomplete' => 'testIncomplete',
     );
 
+    /** @var  string format for log message (sprintf) */
+    private $message;
+
+    /** @var string default message used to push to logs */
+    private $defaultMessage = "Error in Test: %s.\nException Message: %s.\nTrace: %s";
+
 
     /**
      * {@inheritdoc}
@@ -37,6 +42,9 @@ class CodeceptionMonolog extends PlatformExtension
     {
         $this->container = new Container();
         $this->logger = new Logger('tests', $this->resolveHandlers());
+        $this->message = !empty($this->config['messageFormat'])
+            ? $this->config['messageFormat']
+            : $this->defaultMessage;
 
         parent::_initialize();
     }
@@ -85,8 +93,11 @@ class CodeceptionMonolog extends PlatformExtension
     {
         $testName = $failEvent->getTest()->getTestFullName($failEvent->getTest());
 
-        return 'Error in Test ' . $testName
-        . ' Message: ' . $failEvent->getFail()->getMessage();
+        return sprintf(
+            $this->message, $testName,
+            $failEvent->getFail()->getMessage(),
+            $failEvent->getFail()->getTraceAsString()
+        );
     }
 
 
