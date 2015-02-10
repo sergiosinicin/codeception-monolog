@@ -9,6 +9,12 @@ use Illuminate\Container\Container;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
 
+/**
+ * Monolog Extension for Codeception
+ *
+ * Class CodeceptionMonolog
+ * @package Codeception\Extension
+ */
 class CodeceptionMonolog extends PlatformExtension
 {
     /** @var Logger */
@@ -75,10 +81,11 @@ class CodeceptionMonolog extends PlatformExtension
      * @param FailEvent $failEvent
      * @return string
      */
-    protected function getFailMessage(TestEvent $testEvent, FailEvent $failEvent)
+    protected function getFailMessage(FailEvent $failEvent)
     {
-        $testName = $testEvent->getTest()->getTestFullName($testEvent->getTest());
-        return 'Error in Test ' . $testName . ' at ' . (string)Carbon::createFromTimestamp($testEvent->getTime())
+        $testName = $failEvent->getTest()->getTestFullName($failEvent->getTest());
+
+        return 'Error in Test ' . $testName
         . ' Message: ' . $failEvent->getFail()->getMessage();
     }
 
@@ -89,9 +96,9 @@ class CodeceptionMonolog extends PlatformExtension
      * @param TestEvent $testEvent
      * @param FailEvent $failEvent
      */
-    public function testError(TestEvent $testEvent, FailEvent $failEvent)
+    public function testError(FailEvent $failEvent)
     {
-        $this->logger->error($this->getFailMessage($testEvent, $failEvent));
+        $this->logger->error($this->getFailMessage($failEvent));
     }
 
 
@@ -101,9 +108,9 @@ class CodeceptionMonolog extends PlatformExtension
      * @param TestEvent $testEvent
      * @param FailEvent $failEvent
      */
-    public function testFailed(TestEvent $testEvent, FailEvent $failEvent)
+    public function testFailed(FailEvent $failEvent)
     {
-        $this->logger->error($this->getFailMessage($testEvent, $failEvent));
+        $this->logger->error($this->getFailMessage($failEvent));
     }
 
 
@@ -113,9 +120,9 @@ class CodeceptionMonolog extends PlatformExtension
      * @param TestEvent $testEvent
      * @param FailEvent $failEvent
      */
-    public function testIncomplete(TestEvent $testEvent, FailEvent $failEvent)
+    public function testIncomplete(FailEvent $failEvent)
     {
-        $this->logger->warning($this->getFailMessage($testEvent, $failEvent));
+        $this->logger->warning($this->getFailMessage($failEvent));
     }
 
 
