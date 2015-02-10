@@ -13,11 +13,10 @@
           "Codeception\\Extension\\": "src/"
         }
     },
-    "minimum-stability" : "dev",
     "require": {
         "nesbot/carbon": "~1.13",
         "monolog/monolog": "~1.12",
         "codeception/codeception": "> 1.6.4",
-        "illuminate/container": "~5.1@dev"
+        "illuminate/container": "*"
     }
 }

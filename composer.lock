@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fa01077d34e06a49736d8b8ca8f77503",
+    "hash": "5df54790e4ae077794dccc002b0b7511",
     "packages": [
         {
             "name": "codeception/codeception",
@@ -341,26 +341,26 @@
         },
         {
             "name": "illuminate/container",
-            "version": "dev-master",
+            "version": "v5.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/container.git",
-                "reference": "c59e3ca414efe11935188544eb5bcd2aa0971f30"
+                "reference": "22fae557d2a631585536654fadb069f34c315040"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/container/zipball/c59e3ca414efe11935188544eb5bcd2aa0971f30",
-                "reference": "c59e3ca414efe11935188544eb5bcd2aa0971f30",
+                "url": "https://api.github.com/repos/illuminate/container/zipball/22fae557d2a631585536654fadb069f34c315040",
+                "reference": "22fae557d2a631585536654fadb069f34c315040",
                 "shasum": ""
             },
             "require": {
-                "illuminate/contracts": "5.1.*",
+                "illuminate/contracts": "5.0.*",
                 "php": ">=5.4.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.1-dev"
+                    "dev-master": "5.0-dev"
                 }
             },
             "autoload": {
@@ -379,20 +379,20 @@
                 }
             ],
             "description": "The Illuminate Container package.",
-            "time": "2015-01-29 21:57:23"
+            "time": "2015-01-07 02:06:23"
         },
         {
             "name": "illuminate/contracts",
-            "version": "dev-master",
+            "version": "v5.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
-                "reference": "e9d98d820300288ac902bd3f6b35a9f5cb7fe2cb"
+                "reference": "78f1dba092d5fcb6d3a19537662abe31c4d128fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/contracts/zipball/e9d98d820300288ac902bd3f6b35a9f5cb7fe2cb",
-                "reference": "e9d98d820300288ac902bd3f6b35a9f5cb7fe2cb",
+                "url": "https://api.github.com/repos/illuminate/contracts/zipball/78f1dba092d5fcb6d3a19537662abe31c4d128fd",
+                "reference": "78f1dba092d5fcb6d3a19537662abe31c4d128fd",
                 "shasum": ""
             },
             "require": {
@@ -401,7 +401,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.1-dev"
+                    "dev-master": "5.0-dev"
                 }
             },
             "autoload": {
@@ -420,7 +420,7 @@
                 }
             ],
             "description": "The Illuminate Contracts package.",
-            "time": "2015-01-30 19:09:31"
+            "time": "2015-01-30 16:27:08"
         },
         {
             "name": "monolog/monolog",
@@ -1735,10 +1735,8 @@
     ],
     "packages-dev": [],
     "aliases": [],
-    "minimum-stability": "dev",
-    "stability-flags": {
-        "illuminate/container": 20
-    },
+    "minimum-stability": "stable",
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
