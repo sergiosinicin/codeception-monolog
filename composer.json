@@ -2,10 +2,13 @@
     "name": "jotweh/codeception-monolog",
     "description": "Monolog Extension for Codeception",
     "homepage": "https://github.com/jotweh/codeception-monolog",
+    "license": "MIT",
+    "keywords" : [ "codeception", "logging", "monitoring", "monolog" ],
     "authors": [
         {
             "name": "Jan Wyszynski",
-            "email": "jan@couchcommerce.com"
+            "email": "jan.wyszynski@gmail.com",
+	    "role": "Developer"
         }
     ],
     "autoload": {
