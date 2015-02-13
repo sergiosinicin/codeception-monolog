@@ -42,8 +42,8 @@ class CodeceptionMonolog extends PlatformExtension
     {
         $this->container = new Container();
         $this->logger = new Logger('tests', $this->resolveHandlers());
-        $this->message = !empty($this->config['messageFormat'])
-            ? $this->config['messageFormat']
+        $this->message = !empty($this->config['message'])
+            ? $this->config['message']
             : $this->defaultMessage;
 
         parent::_initialize();
