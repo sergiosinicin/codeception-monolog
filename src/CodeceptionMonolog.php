@@ -3,7 +3,11 @@ namespace Codeception\Extension;
 
 use Codeception\Event\FailEvent;
 use Codeception\Event\TestEvent;
+use Codeception\Events;
 use Codeception\Platform\Extension as PlatformExtension;
+use Codeception\Scenario;
+use Codeception\Step;
+use Codeception\TestCase\Interfaces\ScenarioDriven;
 use Illuminate\Container\Container;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
@@ -23,16 +27,16 @@ class CodeceptionMonolog extends PlatformExtension
     private $container;
 
     public static $events = array(
-        'test.fail' => 'testFailed',
-        'test.error' => 'testError',
-        'test.incomplete' => 'testIncomplete',
+        Events::TEST_FAIL => 'testFailed',
+        Events::TEST_ERROR => 'testError',
+        Events::TEST_INCOMPLETE => 'testIncomplete',
     );
 
     /** @var  string format for log message (sprintf) */
     private $message;
 
     /** @var string default message used to push to logs */
-    private $defaultMessage = "Error in Test: %s.\nException Message: %s.\nTrace: %s";
+    private $defaultMessage = "Test %s failed. \nMessage: %s.\nTrace: %s";
 
 
     /**
@@ -91,11 +95,21 @@ class CodeceptionMonolog extends PlatformExtension
      */
     protected function getFailMessage(FailEvent $failEvent)
     {
-        $testName = $failEvent->getTest()->getTestSignature($failEvent->getTest());
+        $test = $failEvent->getTest();
+        $failMessage = $failEvent->getFail()->getMessage();
+
+        if ($test instanceof ScenarioDriven) {
+            $failingStep = $this->getFailingStep($test->getScenario());
+
+            $failMessage =  'Tried to ' . $test->getFeature()
+                . ' but failed when I wanted to ' . $failingStep->getHumanizedAction()
+                . ' (' . $failMessage . ')';
+        }
 
         return sprintf(
-            $this->message, $testName,
-            $failEvent->getFail()->getMessage(),
+            $this->message,
+            $test->getName(),
+            $failMessage,
             $failEvent->getFail()->getTraceAsString()
         );
     }
@@ -136,5 +150,24 @@ class CodeceptionMonolog extends PlatformExtension
         $this->logger->warning($this->getFailMessage($failEvent));
     }
 
+    /**
+     * get failing step from a scenario
+     *
+     * @param $scenario
+     * @return Step
+     */
+    protected function getFailingStep(Scenario $scenario)
+    {
+        // failed step is last step with executed = true
+        $steps = $scenario->getSteps();
+        foreach ($steps as $step) {
+            /** @var $step Step */
+            if ($step->executed == false) {
+                return $step;
+            }
+        }
+
+        return current(array_reverse($steps));
+    }
 
 }
