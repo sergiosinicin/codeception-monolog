@@ -1,13 +1,13 @@
 <?php
+
 namespace Codeception\Extension;
 
 use Codeception\Event\FailEvent;
-use Codeception\Event\TestEvent;
 use Codeception\Events;
 use Codeception\Platform\Extension as PlatformExtension;
 use Codeception\Scenario;
 use Codeception\Step;
-use Codeception\TestCase\Interfaces\ScenarioDriven;
+use Codeception\Test\Interfaces\ScenarioDriven;
 use Illuminate\Container\Container;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
@@ -38,7 +38,6 @@ class CodeceptionMonolog extends PlatformExtension
     /** @var string default message used to push to logs */
     private $defaultMessage = "Test %s failed. \nMessage: %s.\nTrace: %s";
 
-
     /**
      * {@inheritdoc}
      */
@@ -53,7 +52,6 @@ class CodeceptionMonolog extends PlatformExtension
         parent::_initialize();
     }
 
-
     /**
      * resolve single log handler via illuminate DI container
      *
@@ -66,7 +64,7 @@ class CodeceptionMonolog extends PlatformExtension
     {
         $handlerClassName = '\\Monolog\\Handler\\' . $handlerClassName;
 
-        return $this->container->build($handlerClassName, $constructorArgs);
+        return $this->container->make($handlerClassName, $constructorArgs);
     }
 
     /**
@@ -89,7 +87,6 @@ class CodeceptionMonolog extends PlatformExtension
     }
 
     /**
-     * @param TestEvent $testEvent
      * @param FailEvent $failEvent
      * @return string
      */
@@ -101,24 +98,22 @@ class CodeceptionMonolog extends PlatformExtension
         if ($test instanceof ScenarioDriven) {
             $failingStep = $this->getFailingStep($test->getScenario());
 
-            $failMessage =  'Tried to ' . $test->getFeature()
-                . ' but failed when I wanted to ' . $failingStep->getHumanizedAction()
+            $failMessage = 'Tried to ' . $test->getFeature()
+                . ' but failed when I wanted to ' . $failingStep->getHumanizedActionWithoutArguments()
                 . ' (' . $failMessage . ')';
         }
 
         return sprintf(
             $this->message,
-            $test->getName(),
+            $test->getMetadata()->getName(),
             $failMessage,
             $failEvent->getFail()->getTraceAsString()
         );
     }
 
-
     /**
      * executed automatically when test.error event is thrown
      *
-     * @param TestEvent $testEvent
      * @param FailEvent $failEvent
      */
     public function testError(FailEvent $failEvent)
@@ -126,11 +121,9 @@ class CodeceptionMonolog extends PlatformExtension
         $this->logger->error($this->getFailMessage($failEvent));
     }
 
-
     /**
      * executed automatically when test.fail event is thrown
      *
-     * @param TestEvent $testEvent
      * @param FailEvent $failEvent
      */
     public function testFailed(FailEvent $failEvent)
@@ -138,11 +131,9 @@ class CodeceptionMonolog extends PlatformExtension
         $this->logger->error($this->getFailMessage($failEvent));
     }
 
-
     /**
      * executed automatically when test.incomplete event is thrown
      *
-     * @param TestEvent $testEvent
      * @param FailEvent $failEvent
      */
     public function testIncomplete(FailEvent $failEvent)
@@ -153,7 +144,7 @@ class CodeceptionMonolog extends PlatformExtension
     /**
      * get failing step from a scenario
      *
-     * @param $scenario
+     * @param Scenario $scenario
      * @return Step
      */
     protected function getFailingStep(Scenario $scenario)
@@ -169,5 +160,4 @@ class CodeceptionMonolog extends PlatformExtension
 
         return current(array_reverse($steps));
     }
-
 }
