@@ -20,23 +20,24 @@ use Monolog\Logger;
  */
 class CodeceptionMonolog extends PlatformExtension
 {
-    /** @var Logger */
-    private $logger;
-
-    /** @var  Container */
-    private $container;
-
     public static $events = array(
         Events::TEST_FAIL => 'testFailed',
         Events::TEST_ERROR => 'testError',
         Events::TEST_INCOMPLETE => 'testIncomplete',
     );
-
+    /** @var Logger */
+    private $logger;
+    /** @var  Container */
+    private $container;
     /** @var  string format for log message (sprintf) */
     private $message;
 
     /** @var string default message used to push to logs */
     private $defaultMessage = "Test %s failed. \nMessage: %s.\nTrace: %s";
+    /** @var  string if set url - attach report */
+    private $reportUrl;
+    /** @var  array fields in attachment */
+    private $context;
 
     /**
      * {@inheritdoc}
@@ -49,22 +50,13 @@ class CodeceptionMonolog extends PlatformExtension
             ? $this->config['message']
             : $this->defaultMessage;
 
+        $this->reportUrl = !empty($this->config['report_url'])
+            ? $this->config['report_url']
+            : '';
+
+        $this->context = array();
+
         parent::_initialize();
-    }
-
-    /**
-     * resolve single log handler via illuminate DI container
-     *
-     * @param string $handlerClassName
-     * @param array $constructorArgs
-     * @return HandlerInterface
-     * @throws \Exception
-     */
-    protected function resolveHandler($handlerClassName, array $constructorArgs = [])
-    {
-        $handlerClassName = '\\Monolog\\Handler\\' . $handlerClassName;
-
-        return $this->container->make($handlerClassName, $constructorArgs);
     }
 
     /**
@@ -87,6 +79,31 @@ class CodeceptionMonolog extends PlatformExtension
     }
 
     /**
+     * resolve single log handler via illuminate DI container
+     *
+     * @param string $handlerClassName
+     * @param array $constructorArgs
+     * @return HandlerInterface
+     * @throws \Exception
+     */
+    protected function resolveHandler($handlerClassName, array $constructorArgs = [])
+    {
+        $handlerClassName = '\\Monolog\\Handler\\' . $handlerClassName;
+
+        return $this->container->make($handlerClassName, $constructorArgs);
+    }
+
+    /**
+     * executed automatically when test.error event is thrown
+     *
+     * @param FailEvent $failEvent
+     */
+    public function testError(FailEvent $failEvent)
+    {
+        $this->logger->error($this->getFailMessage($failEvent), $this->getContext());
+    }
+
+    /**
      * @param FailEvent $failEvent
      * @return string
      */
@@ -103,42 +120,26 @@ class CodeceptionMonolog extends PlatformExtension
                 . ' (' . $failMessage . ')';
         }
 
+        if ($this->reportUrl) {
+
+            $this->context['Report'] = '<' . $this->reportUrl . '/report.html|Link>';
+
+            $reports = $test->getMetadata()->getReports();
+            if (!empty($reports['html']) && file_exists($reports['html'])) {
+                $this->context['HTML'] = '<' . $this->reportUrl . '/' . basename($reports['html']) . '|Link>';
+            }
+
+            if (!empty($reports['png']) && file_exists($reports['png'])) {
+                $this->context['Screenshot'] = '<' . $this->reportUrl . '/' . basename($reports['png']) . '|Link>';
+            }
+        }
+
         return sprintf(
             $this->message,
             $test->getMetadata()->getName(),
             $failMessage,
             $failEvent->getFail()->getTraceAsString()
         );
-    }
-
-    /**
-     * executed automatically when test.error event is thrown
-     *
-     * @param FailEvent $failEvent
-     */
-    public function testError(FailEvent $failEvent)
-    {
-        $this->logger->error($this->getFailMessage($failEvent));
-    }
-
-    /**
-     * executed automatically when test.fail event is thrown
-     *
-     * @param FailEvent $failEvent
-     */
-    public function testFailed(FailEvent $failEvent)
-    {
-        $this->logger->error($this->getFailMessage($failEvent));
-    }
-
-    /**
-     * executed automatically when test.incomplete event is thrown
-     *
-     * @param FailEvent $failEvent
-     */
-    public function testIncomplete(FailEvent $failEvent)
-    {
-        $this->logger->warning($this->getFailMessage($failEvent));
     }
 
     /**
@@ -159,5 +160,33 @@ class CodeceptionMonolog extends PlatformExtension
         }
 
         return current(array_reverse($steps));
+    }
+
+    /**
+     * @return array
+     */
+    private function getContext()
+    {
+        return $this->context;
+    }
+
+    /**
+     * executed automatically when test.fail event is thrown
+     *
+     * @param FailEvent $failEvent
+     */
+    public function testFailed(FailEvent $failEvent)
+    {
+        $this->logger->error($this->getFailMessage($failEvent), $this->getContext());
+    }
+
+    /**
+     * executed automatically when test.incomplete event is thrown
+     *
+     * @param FailEvent $failEvent
+     */
+    public function testIncomplete(FailEvent $failEvent)
+    {
+        $this->logger->warning($this->getFailMessage($failEvent), $this->getContext());
     }
 }
