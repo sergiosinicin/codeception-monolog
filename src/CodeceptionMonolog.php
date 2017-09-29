@@ -121,17 +121,21 @@ class CodeceptionMonolog extends PlatformExtension
         }
 
         if ($this->reportUrl) {
-
-            $this->context['Report'] = '<' . $this->reportUrl . '/report.html|Link>';
-
             $reports = $test->getMetadata()->getReports();
+            $html = '';
             if (!empty($reports['html']) && file_exists($reports['html'])) {
-                $this->context['HTML'] = '<' . $this->reportUrl . '/' . basename($reports['html']) . '|Link>';
-            }
-
+                $html = $reports['html'];
+            } 
+            $png = '';
             if (!empty($reports['png']) && file_exists($reports['png'])) {
-                $this->context['Screenshot'] = '<' . $this->reportUrl . '/' . basename($reports['png']) . '|Link>';
+                $png = $reports['png'];
             }
+            
+            $this->context['Report   HTML   Screenshot'] = 
+                '<' . $this->reportUrl . '/report.html|  Link>'.
+                '<' . $this->reportUrl . '/' . basename($html) . '|   Link>'.
+                '<' . $this->reportUrl . '/' . basename($png) . '|      Link>'
+                ;
         }
 
         return sprintf(
